@@ -1,0 +1,6 @@
+.github
+.githooks
+.vscode
+.env.example
+.gitignore
+.golangci.yaml

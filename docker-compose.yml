@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  lspserver:
+    container_name: "codecharacter-lsp-2023"
+    image: "codecharacter-lsp-2023"
+    build:
+      context: .
+      target: ${TARGET}
+    ports:
+      - ${SERVER_PORT}:8000
+    volumes:
+      - .:/app

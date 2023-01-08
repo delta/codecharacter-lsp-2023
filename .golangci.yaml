@@ -1,0 +1,23 @@
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+
+linters:
+  enable:
+    - errcheck # Detect unchecked errors
+    - gosimple # Suggest code simplifications
+    - govet # Reports suspicious constructs
+    - ineffassign # Detects unused variable assignments
+    - staticcheck # go vet on steroids
+    - typecheck # Standard Go type checks
+    - unused # Detect unused constants, variables, functions and types
+
+    - gocyclo # or cyclop # Detect cyclomatic complexity
+    - goconst # Detect repeated values that can be made constants
+    - gofmt # Or gofmt # Enforce standard formatting
+    - goimports # Ensure standard import formatting/ordering
+    - misspell # Fix spelling errors
+    - revive  # General purpose linter    
+    - unconvert # Detect unnecessary type conversions
+    - unparam # Detect unused function parameters
