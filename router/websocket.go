@@ -6,6 +6,6 @@ import (
 )
 
 func handleWebSocketConnection(c echo.Context) error {
-	utils.CreateWebsocketConnection(c)
+	utils.InitWebsocket(c)
 	return nil
 }
