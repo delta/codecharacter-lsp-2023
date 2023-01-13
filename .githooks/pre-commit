@@ -5,7 +5,7 @@ echo "\033[36m
 Running golangci-lint
 ======================================================================"
 
-golangci-lint run . 
+golangci-lint run . --config .golangci.yaml
 
 if [ $? != 0 ]; then
     echo "\033[31m
