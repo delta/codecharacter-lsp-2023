@@ -6,12 +6,19 @@ import (
 
 	"github.com/delta/codecharacter-lsp-2023/models"
 	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
-	"golang.org/x/net/websocket"
 )
 
-func InitWebsocket(c echo.Context) {
-	websocket.Handler(CreateWebsocketConnection).ServeHTTP(c.Response(), c.Request())
+var upgrader = websocket.Upgrader{}
+
+func InitWebsocket(c echo.Context) error {
+	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
+	if err != nil {
+		return err
+	}
+	CreateWebsocketConnection(ws)
+	return nil
 }
 
 func drop(ws *websocket.Conn, wsConnectionParams models.WebsocketConnectionParams) error {
@@ -41,12 +48,12 @@ func CreateWebsocketConnection(ws *websocket.Conn) {
 func listen(ws *websocket.Conn, wsConnectionParams models.WebsocketConnectionParams) {
 	for {
 		fmt.Println("Listening for Messages")
-		message := ""
-		err := websocket.Message.Receive(ws, &message)
+		_, messageBytes, err := ws.ReadMessage()
+		message := string(messageBytes[:])
 		if err != nil {
 			fmt.Println("Error occured : ", err)
 			break
 		}
-		fmt.Println("Websocket Message : ", message)
+		fmt.Println("Websocket Message : ", message, " with ID : ", wsConnectionParams.ID)
 	}
 }
