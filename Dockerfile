@@ -15,7 +15,7 @@ FROM build AS dev
 
 WORKDIR /app
 
-RUN apk add --no-cache make
+RUN apk add --no-cache make ccls
 
 RUN go install github.com/cespare/reflex@latest
 

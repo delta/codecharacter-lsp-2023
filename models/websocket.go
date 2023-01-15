@@ -1,7 +1,16 @@
 package models
 
-import "github.com/google/uuid"
+import (
+	"os/exec"
 
-type WebsocketConnectionParams struct {
-	ID uuid.UUID
+	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
+)
+
+type WebsocketConnection struct {
+	ID            uuid.UUID
+	Connection    *websocket.Conn
+	Language      string
+	WorkspacePath string
+	LSPServer     *exec.Cmd
 }

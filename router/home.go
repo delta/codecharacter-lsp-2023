@@ -7,5 +7,5 @@ import (
 )
 
 func home(c echo.Context) error {
-	return c.String(http.StatusAccepted, "Hello! Welcome to the CodeCharacter LSP Project")
+	return c.String(http.StatusOK, "Hello! Welcome to the CodeCharacter LSP Project")
 }
