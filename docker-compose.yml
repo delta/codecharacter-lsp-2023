@@ -11,3 +11,4 @@ services:
       - ${SERVER_PORT}:8000
     volumes:
       - .:/app
+      - ./workspaces:/app/workspaces
