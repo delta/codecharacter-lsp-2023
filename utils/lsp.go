@@ -9,7 +9,7 @@ import (
 )
 
 func CreateLSPServer(wsConnectionParams *models.WebsocketConnection) error {
-	switch wsConnectionParams.Language {
+	switch wsConnectionParams.Language.Language {
 	case "cpp":
 		return createCppServer(wsConnectionParams)
 	}

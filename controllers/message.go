@@ -41,8 +41,11 @@ func handleJSONRPCRequest(ws *models.WebsocketConnection, messageBytes []byte) e
 
 func handleWebSocketRequest(ws *models.WebsocketConnection, message map[string]interface{}) error {
 	fmt.Println("Websocket Request : ", message, " with ID : ", ws.ID)
-	if message["operation"] == "fileUpdate" {
+	switch message["operation"] {
+	case "fileUpdate":
 		return handleFileUpdate(message, ws)
+	case "getAbsPath":
+		return getAbsPath(message, ws)
 	}
 	return nil
 }

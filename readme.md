@@ -33,6 +33,10 @@
   ```sh
   cp .env.example .env
   ```
+- Init Submodules
+  ```sh
+  git submodule update --init
+  ```
 - Enable githooks
   ```sh
   git config core.hooksPath .githooks

@@ -10,7 +10,7 @@ import (
 type WebsocketConnection struct {
 	ID            uuid.UUID
 	Connection    *websocket.Conn
-	Language      string
+	Language      Language
 	WorkspacePath string
 	LSPServer     *exec.Cmd
 }

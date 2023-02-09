@@ -22,14 +22,22 @@ func InitWebsocket(c echo.Context) error {
 	if language != "cpp" && language != "java" && language != "python" {
 		return c.String(http.StatusBadRequest, "Invalid Language")
 	}
-	ws.Language = language
+	ws.Language.Language = language
+	switch language {
+	case "cpp":
+		ws.Language.Extension = ".cpp"
+	case "java":
+		ws.Language.Extension = ".java"
+	case "python":
+		ws.Language.Extension = ".py"
+	}
 	fmt.Println("WS Connection Created with ID : ", id, " and Language : ", language)
 	wsConn, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		return c.String(http.StatusBadRequest, "Error Upgrading to Websocket Connection")
 	}
 	ws.Connection = wsConn
-	err = createWebsocketConnection(&ws)
+	err = createWorkspace(&ws)
 	if err != nil {
 		return c.String(http.StatusBadGateway, "Something went wrong, contact the event administrator.")
 	}
@@ -56,7 +64,7 @@ func dropConnection(ws *models.WebsocketConnection) {
 	fmt.Println("Dropped WS Connection : ", ws.ID)
 }
 
-func createWebsocketConnection(ws *models.WebsocketConnection) error {
+func createWorkspace(ws *models.WebsocketConnection) error {
 	defer dropConnection(ws)
 
 	ws.WorkspacePath = "workspaces/" + ws.ID.String()
@@ -64,6 +72,14 @@ func createWebsocketConnection(ws *models.WebsocketConnection) error {
 	if err != nil {
 		fmt.Println(err)
 		return err
+	}
+	headerFiles, err := os.ReadDir("player_code/" + ws.Language.Language + "/")
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	for _, headerFile := range headerFiles {
+		os.Symlink("player_code/"+ws.Language.Language+"/"+headerFile.Name(), ws.WorkspacePath+"/"+headerFile.Name())
 	}
 	err = CreateLSPServer(ws)
 	if err != nil {
