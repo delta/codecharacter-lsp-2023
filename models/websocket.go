@@ -1,8 +1,6 @@
 package models
 
 import (
-	"os/exec"
-
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
@@ -12,5 +10,5 @@ type WebsocketConnection struct {
 	Connection    *websocket.Conn
 	Language      Language
 	WorkspacePath string
-	LSPServer     *exec.Cmd
+	LSPServer     LSPServer
 }

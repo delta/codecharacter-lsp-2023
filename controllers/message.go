@@ -28,15 +28,20 @@ func SendMessage(ws *models.WebsocketConnection, message map[string]interface{})
 		return err
 	}
 	err = ws.Connection.WriteMessage(websocket.TextMessage, messageBytes)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
+}
+
+func SendErrorMessage(ws *models.WebsocketConnection, message error) error {
+	responseBody := make(map[string]interface{})
+	responseBody["status"] = "error"
+	responseBody["message"] = message.Error()
+	err := SendMessage(ws, responseBody)
+	return err
 }
 
 func handleJSONRPCRequest(ws *models.WebsocketConnection, messageBytes []byte) error {
 	fmt.Println("JSONRPC Request : ", string(messageBytes), " with ID : ", ws.ID)
-	return nil
+	return handleJSONRPC(ws, messageBytes)
 }
 
 func handleWebSocketRequest(ws *models.WebsocketConnection, message map[string]interface{}) error {
@@ -45,7 +50,7 @@ func handleWebSocketRequest(ws *models.WebsocketConnection, message map[string]i
 	case "fileUpdate":
 		return handleFileUpdate(message, ws)
 	case "getAbsPath":
-		return getAbsPath(message, ws)
+		return getAbsPath(ws)
 	}
 	return nil
 }

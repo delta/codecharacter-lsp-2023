@@ -8,16 +8,16 @@ import (
 	"github.com/delta/codecharacter-lsp-2023/models"
 )
 
-func CreateLSPServer(wsConnectionParams *models.WebsocketConnection) error {
-	switch wsConnectionParams.Language.Language {
-	case "cpp":
-		return createCppServer(wsConnectionParams)
+func CreateLSPServer(ws *models.WebsocketConnection) error {
+	switch ws.Language {
+	case models.Cpp:
+		return createCppServer(ws)
 	}
 	return nil
 }
 
-func createCppServer(wsConnectionParams *models.WebsocketConnection) error {
-	wsConnectionParams.LSPServer = exec.Command("ccls", `--init={
+func createCppServer(ws *models.WebsocketConnection) error {
+	ws.LSPServer.Process = exec.Command("ccls", `--init={
 		"index":{
 		  "onChange":true,
 		  "trackDependency":0,
@@ -26,14 +26,25 @@ func createCppServer(wsConnectionParams *models.WebsocketConnection) error {
 		},
 		"cache":{
 		  "retainInMemory":0,
-		  "directory":"./`+wsConnectionParams.WorkspacePath+`"
+		  "directory":"./`+ws.WorkspacePath+`"
 		},
 		"diagnostics":{
 		  "onSave":1500
 		}
 	  }`)
-	wsConnectionParams.LSPServer.Stderr = os.Stderr
-	err := wsConnectionParams.LSPServer.Start()
+	var err error
+	ws.LSPServer.Process.Stderr = os.Stderr
+	ws.LSPServer.Stdin, err = ws.LSPServer.Process.StdinPipe()
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	ws.LSPServer.Stdout, err = ws.LSPServer.Process.StdoutPipe()
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	err = ws.LSPServer.Process.Start()
 	if err != nil {
 		fmt.Println(err)
 		return err

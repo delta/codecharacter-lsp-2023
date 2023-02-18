@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/delta/codecharacter-lsp-2023/controllers"
 	"github.com/delta/codecharacter-lsp-2023/models"
@@ -22,14 +23,13 @@ func InitWebsocket(c echo.Context) error {
 	if language != "cpp" && language != "java" && language != "python" {
 		return c.String(http.StatusBadRequest, "Invalid Language")
 	}
-	ws.Language.Language = language
 	switch language {
 	case "cpp":
-		ws.Language.Extension = ".cpp"
+		ws.Language = models.Cpp
 	case "java":
-		ws.Language.Extension = ".java"
+		ws.Language = models.Java
 	case "python":
-		ws.Language.Extension = ".py"
+		ws.Language = models.Python
 	}
 	fmt.Println("WS Connection Created with ID : ", id, " and Language : ", language)
 	wsConn, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
@@ -49,13 +49,13 @@ func dropConnection(ws *models.WebsocketConnection) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	if ws.LSPServer != nil {
-		err = ws.LSPServer.Process.Signal(os.Interrupt)
+	if ws.LSPServer.Process != nil {
+		err = ws.LSPServer.Process.Process.Signal(os.Interrupt)
 		if err != nil {
 			fmt.Println(err)
 		}
 		// Reads process exit state to remove the <defunct> process from the system process table
-		err = ws.LSPServer.Wait()
+		err = ws.LSPServer.Process.Wait()
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -73,13 +73,14 @@ func createWorkspace(ws *models.WebsocketConnection) error {
 		fmt.Println(err)
 		return err
 	}
-	headerFiles, err := os.ReadDir("player_code/" + ws.Language.Language + "/")
+	headerFiles, err := os.ReadDir("player_code/" + ws.Language.GetLanguage() + "/")
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
 	for _, headerFile := range headerFiles {
-		os.Symlink("player_code/"+ws.Language.Language+"/"+headerFile.Name(), ws.WorkspacePath+"/"+headerFile.Name())
+		absFilePath, _ := filepath.Abs("player_code/" + ws.Language.GetLanguage() + "/" + headerFile.Name())
+		_ = os.Symlink(absFilePath, ws.WorkspacePath+"/"+headerFile.Name())
 	}
 	err = CreateLSPServer(ws)
 	if err != nil {
