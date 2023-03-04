@@ -13,7 +13,10 @@ func main() {
 
 	server := echo.New()
 	utils.InitLogger(server)
-	server.Use(middleware.CORS())
+	server.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	  }))
 	config.InitConfig()
 	router.InitRoutes(server)
 

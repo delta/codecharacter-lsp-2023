@@ -17,8 +17,8 @@ var upgrader = websocket.Upgrader{}
 
 func InitWebsocket(c echo.Context) error {
 	var ws models.WebsocketConnection
-	id := uuid.New()
-	ws.ID = id
+	id := c.QueryParam("id")
+	ws.ID = uuid.New()
 	language := c.Param("language")
 	if language != "cpp" && language != "java" && language != "python" {
 		return c.String(http.StatusBadRequest, "Invalid Language")
@@ -32,6 +32,7 @@ func InitWebsocket(c echo.Context) error {
 		ws.Language = models.Python
 	}
 	fmt.Println("WS Connection Created with ID : ", id, " and Language : ", language)
+	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	wsConn, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		return c.String(http.StatusBadRequest, "Error Upgrading to Websocket Connection")
@@ -70,6 +71,8 @@ func createWorkspace(ws *models.WebsocketConnection) error {
 	ws.WorkspacePath = "workspaces/" + ws.ID.String()
 	err := os.Mkdir(ws.WorkspacePath, os.ModePerm)
 	if err != nil {
+		// fmt.Println("error is hereeeee")
+		// fmt.Println(os.Getwd())
 		fmt.Println(err)
 		return err
 	}
@@ -87,6 +90,7 @@ func createWorkspace(ws *models.WebsocketConnection) error {
 		fmt.Println(err)
 		return err
 	}
+	go controllers.SendMessageFunc(ws)
 	err = listen(ws)
 	if err != nil {
 		fmt.Println(err)

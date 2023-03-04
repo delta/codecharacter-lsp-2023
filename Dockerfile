@@ -1,6 +1,8 @@
 ## Build
 FROM golang:1.18-alpine AS build
 
+RUN apk add build-base
+
 WORKDIR /app
 
 COPY go.mod go.sum  ./
@@ -9,6 +11,8 @@ RUN go mod download
 COPY . .
 
 RUN go build -o server
+
+RUN apk add --no-cache cmake
 
 ## Dev
 FROM build AS dev
@@ -27,6 +31,8 @@ CMD ["make watch"]
 FROM alpine:latest AS prod
 
 WORKDIR /
+
+RUN apk add --no-cache ccls
 
 COPY --from=build /app/server /app/entry.sh /app/.env  /
 

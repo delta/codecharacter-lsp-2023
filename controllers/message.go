@@ -40,12 +40,12 @@ func SendErrorMessage(ws *models.WebsocketConnection, message error) error {
 }
 
 func handleJSONRPCRequest(ws *models.WebsocketConnection, messageBytes []byte) error {
-	fmt.Println("JSONRPC Request : ", string(messageBytes), " with ID : ", ws.ID)
+	// fmt.Println("JSONRPC Request : ", string(messageBytes), " with ID : ", ws.ID)
 	return handleJSONRPC(ws, messageBytes)
 }
 
 func handleWebSocketRequest(ws *models.WebsocketConnection, message map[string]interface{}) error {
-	fmt.Println("Websocket Request : ", message, " with ID : ", ws.ID)
+	// fmt.Println("Websocket Request : ", message, " with ID : ", ws.ID)
 	switch message["operation"] {
 	case "fileUpdate":
 		return handleFileUpdate(message, ws)
