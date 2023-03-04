@@ -5,81 +5,59 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/delta/codecharacter-lsp-2023/models"
 )
 
-// func ended(){
-// 	fmt.Println("ended")
-// }
-
 func SendMessageFunc(ws *models.WebsocketConnection) {
-	// defer ended()
-	fmt.Println("starting routine")
 	for {
 		var responseMessageBytes []byte
 		reader := bufio.NewReader(ws.LSPServer.Stdout)
-		// byttttteeees,_ := reader.Peek(100)
-		// fmt.Println(string(byttttteeees))
-		line1, err := reader.ReadBytes('\n')
-		// fmt.Println("READ EROR", err)
-		if err != nil && err.Error() == "EOF" {
-			fmt.Println(err)
-			return
+		contentLengthLine, err := reader.ReadBytes('\n')
+		var contentLengthHeader string
+		contentLengthHeader = string(contentLengthLine)
+		if err != nil {
+			if err.Error() == "EOF" {
+				return
+			}
+			continue
 		}
-		line1 = line1[16:]
-		line1 = line1[:len(line1)-2]
-		length, err := strconv.Atoi(string(line1))
-		fmt.Println(length)
+		const prefix = "Content-Length: "
+		const suffix = "\r\n"
+		contentLengthHeader = strings.TrimPrefix(contentLengthHeader, prefix)
+		contentLengthHeader = strings.TrimSuffix(contentLengthHeader, suffix)
+		contentLength, err := strconv.Atoi(contentLengthHeader)
+		if err != nil {
+			continue
+		}
 		_, err = reader.ReadBytes('\n')
-		// fmt.Println(line2)
-		for i := 0; i < length; i++ {
+		if err != nil {
+			continue
+		}
+		for i := 0; i < contentLength; i++ {
 			currbyte, err := reader.ReadByte()
 			if err != nil {
-				fmt.Println(err)
+				continue
 			}
-			// fmt.Println(err)
 			responseMessageBytes = append(responseMessageBytes, currbyte)
 		}
-		// TODO: Read Content Length
-		// for i := 0; i < 20; i++ {
-		// 	gg,err := reader.ReadString('}')
-		// 	if err != nil {
-		// 		fmt.Println(err)
-		// 		return err
-		// 	}
-		// 	fmt.Println(gg)
-		// 	// fmt.Println("JSONRPC Response : ", len(responseMessageBytes), " with ID : ", ws.ID)
-		// }
-		// fmt.Println(respone)
-		// fmt.Println("came here")
-		// fmt.Println(string(responseMessageBytes))
 		var responseMessage map[string]interface{}
 		err = json.Unmarshal(responseMessageBytes, &responseMessage)
-		// if err != nil {
-		// 	fmt.Println("Error in unmarshalling JSONRPC response : ", err)
-		// 	return err
-		// }
-		SendMessage(ws, responseMessage)
+		if err != nil {
+			continue
+		}
+		_ = SendMessage(ws, responseMessage)
 	}
 }
 
 func handleJSONRPC(ws *models.WebsocketConnection, requestMessageBytes []byte) error {
-	u := fmt.Sprintf("Content-Length: %d", len(requestMessageBytes))
-	result := u + "\n\n" + string(requestMessageBytes)
-	// fmt.Println(result)
-	_, err := ws.LSPServer.Stdin.Write([]byte(result))
+	contentLength := len(requestMessageBytes)
+	header := fmt.Sprintf("Content-Length: %d\n\n", contentLength)
+	requestMessage := header + string(requestMessageBytes)
+	_, err := ws.LSPServer.Stdin.Write([]byte(requestMessage))
 	if err != nil {
-		fmt.Println("error here", err)
-		// fmt.Println(err)
-		// return err
+		return err
 	}
-
-	// buff := bufio.NewScanner(ws.LSPServer.Stdout)
-	// // var allText []string
-
-	// for buff.Scan() {
-	// 	fmt.Println([]byte(buff.Text()))
-	// }
 	return nil
 }

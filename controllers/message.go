@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/delta/codecharacter-lsp-2023/models"
 	"github.com/gorilla/websocket"
@@ -15,7 +14,6 @@ func HandleMessage(ws *models.WebsocketConnection, messageBytes []byte) error {
 		return err
 	}
 	_, isPresent := message["jsonrpc"]
-	fmt.Println("Is JSONRPC? : ", isPresent)
 	if isPresent {
 		return handleJSONRPCRequest(ws, messageBytes)
 	}
@@ -40,12 +38,10 @@ func SendErrorMessage(ws *models.WebsocketConnection, message error) error {
 }
 
 func handleJSONRPCRequest(ws *models.WebsocketConnection, messageBytes []byte) error {
-	// fmt.Println("JSONRPC Request : ", string(messageBytes), " with ID : ", ws.ID)
 	return handleJSONRPC(ws, messageBytes)
 }
 
 func handleWebSocketRequest(ws *models.WebsocketConnection, message map[string]interface{}) error {
-	// fmt.Println("Websocket Request : ", message, " with ID : ", ws.ID)
 	switch message["operation"] {
 	case "fileUpdate":
 		return handleFileUpdate(message, ws)

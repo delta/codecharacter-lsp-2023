@@ -12,8 +12,6 @@ COPY . .
 
 RUN go build -o server
 
-RUN apk add --no-cache cmake
-
 ## Dev
 FROM build AS dev
 
@@ -32,7 +30,7 @@ FROM alpine:latest AS prod
 
 WORKDIR /
 
-RUN apk add --no-cache ccls
+RUN apk add --no-cache build-base ccls
 
 COPY --from=build /app/server /app/entry.sh /app/.env  /
 

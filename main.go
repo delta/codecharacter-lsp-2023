@@ -13,11 +13,11 @@ func main() {
 
 	server := echo.New()
 	utils.InitLogger(server)
-	server.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
-	  }))
 	config.InitConfig()
+	server.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{config.FrontendURL},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	}))
 	router.InitRoutes(server)
 
 	server.Logger.Fatal(server.Start(":" + config.ServerPort))
