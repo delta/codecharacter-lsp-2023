@@ -8,6 +8,7 @@ import (
 	"github.com/delta/codecharacter-lsp-2023/config"
 	"github.com/delta/codecharacter-lsp-2023/controllers"
 	"github.com/delta/codecharacter-lsp-2023/models"
+	"github.com/delta/codecharacter-lsp-2023/servers"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
@@ -54,17 +55,13 @@ func dropConnection(ws *models.WebsocketConnection, c echo.Context) {
 	if err != nil {
 		c.Echo().Logger.Error(err)
 	}
-	if ws.LSPServer.Process != nil {
-		err = ws.LSPServer.Process.Process.Signal(os.Interrupt)
-		if err != nil {
-			c.Echo().Logger.Error(err)
-		}
-		// Reads process exit state to remove the <defunct> process from the system process table
-		err = ws.LSPServer.Process.Wait()
-		if err != nil {
-			c.Echo().Logger.Error(err)
-		}
+	err = ws.LSPServer.Process.Process.Signal(os.Interrupt)
+	if err != nil {
+		c.Echo().Logger.Error(err)
 	}
+	_ = ws.LSPServer.DevNullFd.Close()
+	// Reads process exit state to remove the <defunct> process from the system process table
+	_ = ws.LSPServer.Process.Wait()
 	ws.Connection.Close()
 	c.Echo().Logger.Info("WS Connection ", ws.ID, " closed")
 }
@@ -87,12 +84,13 @@ func createWorkspace(ws *models.WebsocketConnection, c echo.Context) error {
 		absFilePath, _ := filepath.Abs("player_code/" + ws.Language.GetLanguage() + "/" + headerFile.Name())
 		_ = os.Symlink(absFilePath, ws.WorkspacePath+"/"+headerFile.Name())
 	}
-	err = CreateLSPServer(ws)
+	err = servers.CreateLSPServer(ws)
 	if err != nil {
 		c.Echo().Logger.Error(err)
 		return err
 	}
-	go controllers.SendMessageFunc(ws)
+	// Start an async goroutine to listen for messages from the LSP server
+	go controllers.StreamReader(ws)
 	err = listen(ws, c)
 	if err != nil {
 		c.Echo().Logger.Error(err)
@@ -106,7 +104,6 @@ func listen(ws *models.WebsocketConnection, c echo.Context) error {
 		_, messageBytes, err := ws.Connection.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				c.Echo().Logger.Error(err)
 				c.Echo().Logger.Info("WS Connection ", ws.ID, " closing with error : ", err)
 				return err
 			}

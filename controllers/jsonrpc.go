@@ -10,7 +10,10 @@ import (
 	"github.com/delta/codecharacter-lsp-2023/models"
 )
 
-func SendMessageFunc(ws *models.WebsocketConnection) {
+func StreamReader(ws *models.WebsocketConnection) {
+	if ws.LSPServer.Process == nil {
+		return
+	}
 	for {
 		var responseMessageBytes []byte
 		reader := bufio.NewReader(ws.LSPServer.Stdout)

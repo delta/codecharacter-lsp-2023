@@ -1,20 +1,13 @@
-package utils
+package servers
 
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
 
 	"github.com/delta/codecharacter-lsp-2023/models"
 )
-
-func CreateLSPServer(ws *models.WebsocketConnection) error {
-	switch ws.Language {
-	case models.Cpp:
-		return createCppServer(ws)
-	}
-	return nil
-}
 
 func createCppServer(ws *models.WebsocketConnection) error {
 	filename := "compile_commands.json"
@@ -44,28 +37,28 @@ func createCppServer(ws *models.WebsocketConnection) error {
 	if err != nil {
 		return err
 	}
+	devnull, _ := os.OpenFile(os.DevNull, os.O_WRONLY, 0755)
+	ws.LSPServer.Process.Stderr = devnull
+	ws.LSPServer.DevNullFd = devnull
 	err = ws.LSPServer.Process.Start()
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func createCompileCommands(ws *models.WebsocketConnection) string {
 	return fmt.Sprintf(`[
 		{
 		  "directory": "%[1]s",
-		  "command": "/usr/bin/c++  -I%[1]s/player_code.h  -o CMakeFiles/MyProject.dir/main.cpp.o -c %[1]s/main.cpp",
+		  "command": "/usr/bin/c++ -std=c++17 -I%[1]s/player_code.h  -o CMakeFiles/MyProject.dir/main.cpp.o -c %[1]s/main.cpp",
 		  "file": "%[1]s/main.cpp"
 		},
 		{
 		  "directory": "%[1]s",
-		  "command": "/usr/bin/c++  -I%[1]s/player_code.h  -o CMakeFiles/MyProject.dir/player_code.cpp.o -c %[1]s/player_code.cpp",
+		  "command": "/usr/bin/c++ -std=c++17 -I%[1]s/player_code.h  -o CMakeFiles/MyProject.dir/player_code.cpp.o -c %[1]s/player_code.cpp",
 		  "file": "%[1]s/player_code.cpp"
 		},
 		{
 		  "directory": "%[1]s",
-		  "command": "/usr/bin/c++  -I%[1]s/player_code.h  -o CMakeFiles/MyProject.dir/player.cpp.o -c %[1]s/player.cpp",
+		  "command": "/usr/bin/c++ -std=c++17 -I%[1]s/player_code.h  -o CMakeFiles/MyProject.dir/player.cpp.o -c %[1]s/player.cpp",
 		  "file": "%[1]s/player.cpp"
 		}
 		]`, ws.WorkspacePath)
