@@ -14,13 +14,14 @@ func handleFileUpdate(message map[string]interface{}, ws *models.WebsocketConnec
 }
 
 func getAbsPath(ws *models.WebsocketConnection) error {
-	abs, err := filepath.Abs(ws.WorkspacePath)
+	absFolderPath, err := filepath.Abs(ws.WorkspacePath)
 	responseBody := make(map[string]interface{})
 	if err != nil {
 		return SendErrorMessage(ws, err)
 	}
 	responseBody["status"] = "success"
-	responseBody["message"] = abs
+	responseBody["folderpath"] = absFolderPath
+	responseBody["filepath"] = absFolderPath + "/player" + ws.Language.GetExtension()
 	err = SendMessage(ws, responseBody)
 	return err
 }
