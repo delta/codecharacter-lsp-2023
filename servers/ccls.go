@@ -40,8 +40,7 @@ func createCppServer(ws *models.WebsocketConnection) error {
 	devnull, _ := os.OpenFile(os.DevNull, os.O_WRONLY, 0755)
 	ws.LSPServer.Process.Stderr = devnull
 	ws.LSPServer.DevNullFd = devnull
-	err = ws.LSPServer.Process.Start()
-	return err
+	return ws.LSPServer.Process.Start()
 }
 
 func createCompileCommands(ws *models.WebsocketConnection) string {

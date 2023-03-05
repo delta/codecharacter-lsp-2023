@@ -59,8 +59,5 @@ func handleJSONRPC(ws *models.WebsocketConnection, requestMessageBytes []byte) e
 	header := fmt.Sprintf("Content-Length: %d\n\n", contentLength)
 	requestMessage := header + string(requestMessageBytes)
 	_, err := ws.LSPServer.Stdin.Write([]byte(requestMessage))
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }

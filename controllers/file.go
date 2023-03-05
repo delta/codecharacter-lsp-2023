@@ -9,8 +9,7 @@ import (
 
 func handleFileUpdate(message map[string]interface{}, ws *models.WebsocketConnection) error {
 	filename := "player" + ws.Language.GetExtension()
-	err := ioutil.WriteFile(ws.WorkspacePath+"/"+filename, []byte(message["code"].(string)), 0644)
-	return err
+	return ioutil.WriteFile(ws.WorkspacePath+"/"+filename, []byte(message["code"].(string)), 0644)
 }
 
 func getAbsPath(ws *models.WebsocketConnection) error {
@@ -22,6 +21,5 @@ func getAbsPath(ws *models.WebsocketConnection) error {
 	responseBody["status"] = "success"
 	responseBody["folderpath"] = absFolderPath
 	responseBody["filepath"] = absFolderPath + "/player" + ws.Language.GetExtension()
-	err = SendMessage(ws, responseBody)
-	return err
+	return SendMessage(ws, responseBody)
 }

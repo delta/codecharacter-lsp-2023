@@ -25,16 +25,14 @@ func SendMessage(ws *models.WebsocketConnection, message map[string]interface{})
 	if err != nil {
 		return err
 	}
-	err = ws.Connection.WriteMessage(websocket.TextMessage, messageBytes)
-	return err
+	return ws.Connection.WriteMessage(websocket.TextMessage, messageBytes)
 }
 
 func SendErrorMessage(ws *models.WebsocketConnection, message error) error {
 	responseBody := make(map[string]interface{})
 	responseBody["status"] = "error"
 	responseBody["message"] = message.Error()
-	err := SendMessage(ws, responseBody)
-	return err
+	return SendMessage(ws, responseBody)
 }
 
 func handleJSONRPCRequest(ws *models.WebsocketConnection, messageBytes []byte) error {
