@@ -8,7 +8,7 @@ import (
 )
 
 func createPythonServer(ws *models.WebsocketConnection) error {
-	ws.LSPServer.Process = exec.Command("pyls", "-v")
+	ws.LSPServer.Process = exec.Command("pylsp")
 	var err error
 	ws.LSPServer.Stdin, err = ws.LSPServer.Process.StdinPipe()
 	if err != nil {
