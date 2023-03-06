@@ -18,6 +18,7 @@ func main() {
 		AllowOrigins: []string{config.FrontendURL},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
 	}))
+	server.Use(middleware.Gzip())
 	router.InitRoutes(server)
 
 	server.Logger.Fatal(server.Start(":" + config.ServerPort))

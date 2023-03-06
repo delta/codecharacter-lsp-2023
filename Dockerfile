@@ -1,7 +1,7 @@
 ## Base
 FROM golang:1.18-alpine AS base
 
-RUN apk add --no-cache build-base ccls py3-lsp-server
+RUN apk add --no-cache build-base ccls pylsp
 
 ## Build
 FROM base AS build
