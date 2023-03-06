@@ -1,5 +1,10 @@
+## Base
+FROM golang:1.18-alpine AS base
+
+RUN apk add --no-cache build-base ccls py3-lsp-server
+
 ## Build
-FROM golang:1.18-alpine AS build
+FROM base AS build
 
 WORKDIR /app
 
@@ -15,7 +20,7 @@ FROM build AS dev
 
 WORKDIR /app
 
-RUN apk add --no-cache make ccls
+RUN apk add --no-cache make
 
 RUN go install github.com/cespare/reflex@latest
 
@@ -24,7 +29,7 @@ CMD ["make watch"]
 
 
 ## Prod
-FROM alpine:latest AS prod
+FROM base AS prod
 
 WORKDIR /
 

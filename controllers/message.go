@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/delta/codecharacter-lsp-2023/models"
 	"github.com/gorilla/websocket"
@@ -15,7 +14,6 @@ func HandleMessage(ws *models.WebsocketConnection, messageBytes []byte) error {
 		return err
 	}
 	_, isPresent := message["jsonrpc"]
-	fmt.Println("Is JSONRPC? : ", isPresent)
 	if isPresent {
 		return handleJSONRPCRequest(ws, messageBytes)
 	}
@@ -27,22 +25,26 @@ func SendMessage(ws *models.WebsocketConnection, message map[string]interface{})
 	if err != nil {
 		return err
 	}
-	err = ws.Connection.WriteMessage(websocket.TextMessage, messageBytes)
-	if err != nil {
-		return err
-	}
-	return nil
+	return ws.Connection.WriteMessage(websocket.TextMessage, messageBytes)
+}
+
+func SendErrorMessage(ws *models.WebsocketConnection, message error) error {
+	responseBody := make(map[string]interface{})
+	responseBody["status"] = "error"
+	responseBody["message"] = message.Error()
+	return SendMessage(ws, responseBody)
 }
 
 func handleJSONRPCRequest(ws *models.WebsocketConnection, messageBytes []byte) error {
-	fmt.Println("JSONRPC Request : ", string(messageBytes), " with ID : ", ws.ID)
-	return nil
+	return handleJSONRPC(ws, messageBytes)
 }
 
 func handleWebSocketRequest(ws *models.WebsocketConnection, message map[string]interface{}) error {
-	fmt.Println("Websocket Request : ", message, " with ID : ", ws.ID)
-	if message["operation"] == "fileUpdate" {
+	switch message["operation"] {
+	case "fileUpdate":
 		return handleFileUpdate(message, ws)
+	case "getAbsPath":
+		return getAbsPath(ws)
 	}
 	return nil
 }

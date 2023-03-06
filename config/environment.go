@@ -10,6 +10,7 @@ import (
 )
 
 var ServerPort string
+var FrontendURL string
 
 func InitConfig() {
 	err := godotenv.Load()
@@ -18,4 +19,5 @@ func InitConfig() {
 	}
 
 	ServerPort = os.Getenv("SERVER_PORT")
+	FrontendURL = os.Getenv("FRONTEND_URL")
 }
