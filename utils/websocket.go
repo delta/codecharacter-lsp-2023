@@ -14,7 +14,9 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-var upgrader = websocket.Upgrader{}
+var upgrader = websocket.Upgrader{
+	EnableCompression: true,
+}
 
 func CheckOrigin(r *http.Request) bool {
 	origin := r.Header.Get("Origin")
@@ -39,6 +41,7 @@ func InitWebsocket(c echo.Context) error {
 	c.Echo().Logger.Info("WS Connection Created with ID : ", ws.ID, " and Language : ", language)
 	upgrader.CheckOrigin = CheckOrigin
 	wsConn, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
+	wsConn.EnableWriteCompression(true)
 	if err != nil {
 		return c.String(http.StatusBadRequest, "Error Upgrading to Websocket Connection")
 	}
