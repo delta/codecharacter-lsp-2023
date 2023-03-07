@@ -41,10 +41,11 @@ func InitWebsocket(c echo.Context) error {
 	c.Echo().Logger.Info("WS Connection Created with ID : ", ws.ID, " and Language : ", language)
 	upgrader.CheckOrigin = CheckOrigin
 	wsConn, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
-	wsConn.EnableWriteCompression(true)
 	if err != nil {
+		c.Echo().Logger.Error(err)
 		return c.String(http.StatusBadRequest, "Error Upgrading to Websocket Connection")
 	}
+	wsConn.EnableWriteCompression(true)
 	ws.Connection = wsConn
 	err = createWorkspace(&ws, c)
 	if err != nil {

@@ -32,15 +32,15 @@ func StreamReader(ws *models.WebsocketConnection) {
 		contentLengthHeader = strings.TrimPrefix(contentLengthHeader, prefix)
 		contentLengthHeader = strings.TrimSuffix(contentLengthHeader, suffix)
 		contentLength, err := strconv.Atoi(contentLengthHeader)
+		if err != nil {
+			continue
+		}
 		if ws.Language == models.Python {
 			// pyls sends an extra Content-Type header after the Content-Length header
 			_, err = reader.ReadBytes('\n')
 			if err != nil {
 				continue
 			}
-		}
-		if err != nil {
-			continue
 		}
 		// Reading redundant newline after headers
 		_, err = reader.ReadBytes('\n')
