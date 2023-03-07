@@ -12,3 +12,4 @@ services:
     volumes:
       - .:/app
       - ./workspaces:/app/workspaces
+      - ./workspaces:/workspaces
