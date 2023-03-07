@@ -1,7 +1,11 @@
 ## Base
 FROM golang:1.18-alpine AS base
 
-RUN apk add --no-cache build-base ccls py3-lsp-server
+RUN apk add --no-cache build-base ccls py3-lsp-server curl openjdk17
+
+WORKDIR /jdt
+RUN curl https://download.eclipse.org/jdtls/milestones/1.9.0/jdt-language-server-1.9.0-202203031534.tar.gz --output jdt.tar.gz
+RUN tar -xvf ./jdt.tar.gz
 
 ## Build
 FROM base AS build
@@ -29,7 +33,7 @@ CMD ["make watch"]
 
 
 ## Prod
-FROM base AS prod
+FROM alpine:latest AS prod
 
 WORKDIR /
 

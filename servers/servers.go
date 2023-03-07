@@ -10,8 +10,8 @@ func CreateLSPServer(ws *models.WebsocketConnection) error {
 		return createCppServer(ws)
 	case models.Python:
 		return createPythonServer(ws)
-		// case models.Java:
-		// 	return createPythonServer(ws)
+	case models.Java:
+		return createJavaServer(ws)
 	}
 	return nil
 }
