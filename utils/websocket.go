@@ -55,17 +55,17 @@ func InitWebsocket(c echo.Context) error {
 }
 
 func dropConnection(ws *models.WebsocketConnection, c echo.Context) {
-	err := os.RemoveAll(ws.WorkspacePath)
-	if err != nil {
-		c.Echo().Logger.Error(err)
-	}
-	err = ws.LSPServer.Process.Process.Signal(os.Interrupt)
+	err := ws.LSPServer.Process.Process.Signal(os.Interrupt)
 	if err != nil {
 		c.Echo().Logger.Error(err)
 	}
 	_ = ws.LSPServer.DevNullFd.Close()
 	// Reads process exit state to remove the <defunct> process from the system process table
 	_ = ws.LSPServer.Process.Wait()
+	err = os.RemoveAll(ws.WorkspacePath)
+	if err != nil {
+		c.Echo().Logger.Error(err)
+	}
 	ws.Connection.Close()
 	c.Echo().Logger.Info("WS Connection ", ws.ID, " closed")
 }
