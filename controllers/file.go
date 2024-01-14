@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/delta/codecharacter-lsp-2023/models"
@@ -9,7 +9,7 @@ import (
 
 func handleFileUpdate(message map[string]interface{}, ws *models.WebsocketConnection) error {
 	filename := "player" + ws.Language.GetExtension()
-	return ioutil.WriteFile(ws.WorkspacePath+"/"+filename, []byte(message["code"].(string)), 0644)
+	return os.WriteFile(ws.WorkspacePath+"/"+filename, []byte(message["code"].(string)), 0644)
 }
 
 func getAbsPath(ws *models.WebsocketConnection) error {

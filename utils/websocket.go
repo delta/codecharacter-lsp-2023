@@ -58,6 +58,10 @@ func dropConnection(ws *models.WebsocketConnection, c echo.Context) {
 	err := ws.LSPServer.Process.Process.Signal(os.Interrupt)
 	if err != nil {
 		c.Echo().Logger.Error(err)
+		err = ws.LSPServer.Process.Process.Signal(os.Kill)
+		if err != nil {
+			c.Echo().Logger.Error(err)
+		}
 	}
 	_ = ws.LSPServer.DevNullFd.Close()
 	// Reads process exit state to remove the <defunct> process from the system process table

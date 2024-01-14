@@ -2,7 +2,7 @@ package servers
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"os/exec"
 
 	"github.com/delta/codecharacter-lsp-2023/models"
@@ -10,7 +10,7 @@ import (
 
 func createCppServer(ws *models.WebsocketConnection) error {
 	filename := "compile_commands.json"
-	err := ioutil.WriteFile(ws.WorkspacePath+"/"+filename, []byte(createCompileCommands(ws)), 0644)
+	err := os.WriteFile(ws.WorkspacePath+"/"+filename, []byte(createCompileCommands(ws)), 0644)
 	if err != nil {
 		return err
 	}
