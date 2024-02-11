@@ -55,7 +55,7 @@ func InitWebsocket(c echo.Context) error {
 }
 
 func dropConnection(ws *models.WebsocketConnection, c echo.Context) {
-	err := ws.LSPServer.Process.Process.Signal(os.Interrupt)
+	err := ws.LSPServer.Process.Process.Signal(os.Kill)
 	if err != nil {
 		c.Echo().Logger.Error(err)
 	}
